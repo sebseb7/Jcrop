@@ -663,17 +663,23 @@
             delta;
 
 
-        if (aspectmin && (Math.abs(xsize / ysize) < aspectmin)) {
-          x2 = (xsize > 0) ? (x1 + Math.abs(ysize)*aspectmin ) : (x1 - Math.abs(ysize)*aspectmin);
-        }
-        if (aspectmax && (Math.abs(xsize / ysize) > aspectmax)) {
-          y2 = (ysize > 0) ? (y1 + Math.abs(xsize)/aspectmax ) : (y1 - Math.abs(xsize)/aspectmax);
-        }
         if (xlimit && (Math.abs(xsize) > xlimit)) {
           x2 = (xsize > 0) ? (x1 + xlimit) : (x1 - xlimit);
+          xsize = x2 - x1;
         }
         if (ylimit && (Math.abs(ysize) > ylimit)) {
           y2 = (ysize > 0) ? (y1 + ylimit) : (y1 - ylimit);
+          ysize = y2 - y1;
+        }
+
+
+        if (aspectmin && (Math.abs(xsize / ysize) < aspectmin)) {
+          x2 = (xsize > 0) ? (x1 + Math.abs(ysize)*aspectmin ) : (x1 - Math.abs(ysize)*aspectmin);
+          xsize = x2 - x1;
+        }
+        if (aspectmax && (Math.abs(xsize / ysize) > aspectmax)) {
+          y2 = (ysize > 0) ? (y1 + Math.abs(xsize)/aspectmax ) : (y1 - Math.abs(xsize)/aspectmax);
+          ysize = y2 - y1;
         }
 
         if (ymin / yscale && (Math.abs(ysize) < ymin / yscale)) {
