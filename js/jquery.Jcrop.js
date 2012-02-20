@@ -386,7 +386,7 @@
     // Set more variables {{{
     var bgcolor = options.bgColor,
         bgopacity = options.bgOpacity,
-        xlimit, ylimit, xmin, ymin, xscale, yscale, enabled = true,
+        xlimit, ylimit, xmin, ymin, aspectmin, aspectmax, xscale, yscale, enabled = true,
         btndown, animating, shift_down;
 
     docOffset = getPos($img);
@@ -662,6 +662,13 @@
             ysize = y2 - y1,
             delta;
 
+
+        if (aspectmin && (Math.abs(xsize / ysize) < aspectmin)) {
+          x2 = (xsize > 0) ? (x1 + Math.abs(ysize)*aspectmin ) : (x1 - Math.abs(ysize)*aspectmin);
+        }
+        if (aspectmax && (Math.abs(xsize / ysize) > aspectmax)) {
+          y2 = (ysize > 0) ? (y1 + Math.abs(xsize)/aspectmax ) : (y1 - Math.abs(xsize)/aspectmax);
+        }
         if (xlimit && (Math.abs(xsize) > xlimit)) {
           x2 = (xsize > 0) ? (x1 + xlimit) : (x1 - xlimit);
         }
@@ -1523,6 +1530,8 @@
       ylimit = options.maxSize[1] || 0;
       xmin = options.minSize[0] || 0;
       ymin = options.minSize[1] || 0;
+      aspectmin = options.minAspect || 0;
+      aspectmax = options.maxAspect || 0;
 
       if (options.hasOwnProperty('outerImage')) {
         $img.attr('src', options.outerImage);
@@ -1679,6 +1688,8 @@
     minSelect: [0, 0],
     maxSize: [0, 0],
     minSize: [0, 0],
+    minAspect: 0,
+    maxAspect: 0,
 
     // Callbacks / Event Handlers
     onChange: function () {},
