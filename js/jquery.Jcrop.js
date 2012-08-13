@@ -1,5 +1,5 @@
 /**
- * jquery.Jcrop.js v0.9.9
+ * jquery.Jcrop.js v0.9.10
  * jQuery Image Cropping Plugin - released under MIT License 
  * Author: Kelly Hallman <khallman@gmail.com>
  * http://github.com/tapmodo/Jcrop
@@ -37,7 +37,7 @@
 
     // Internal Methods {{{
     function px(n) {
-      return parseInt(n, 10) + 'px';
+      return Math.round(n) + 'px';
     }
     function cssClass(cl) {
       return options.baseClass + '-' + cl;
@@ -201,12 +201,12 @@
     function unscale(c) //{{{
     {
       return {
-        x: parseInt(c.x * xscale, 10),
-        y: parseInt(c.y * yscale, 10),
-        x2: parseInt(c.x2 * xscale, 10),
-        y2: parseInt(c.y2 * yscale, 10),
-        w: parseInt(c.w * xscale, 10),
-        h: parseInt(c.h * yscale, 10)
+        x: c.x * xscale,
+        y: c.y * yscale,
+        x2: c.x2 * xscale,
+        y2: c.y2 * yscale,
+        w: c.w * xscale,
+        h: c.h * yscale
       };
     }
     //}}}
@@ -653,7 +653,7 @@
           ya = y2;
           yb = y1;
         }
-        return [Math.round(xa), Math.round(ya), Math.round(xb), Math.round(yb)];
+        return [xa, ya, xb, yb];
       }
       //}}}
       function getRect() //{{{
@@ -966,7 +966,7 @@
       //}}}
       function resize(w, h) //{{{
       {
-        $sel.width(w).height(h);
+        $sel.width(Math.round(w)).height(Math.round(h));
       }
       //}}}
       function refresh() //{{{
@@ -1066,9 +1066,11 @@
       //}}}
       function animMode(v) //{{{
       {
-        if (animating === v) {
+        if (v) {
+          animating = true;
           disableHandles();
         } else {
+          animating = false;
           enableHandles();
         }
       } 
@@ -1240,8 +1242,9 @@
         position: 'fixed',
         left: '-120px',
         width: '12px'
-      }),
-          $keywrap = $('<div />').css({
+      }).addClass('jcrop-keymgr'),
+
+        $keywrap = $('<div />').css({
           position: 'absolute',
           overflow: 'hidden'
         }).append($keymgr);
@@ -1329,10 +1332,10 @@
     //}}}
     function animateTo(a, callback) //{{{
     {
-      var x1 = parseInt(a[0], 10) / xscale,
-          y1 = parseInt(a[1], 10) / yscale,
-          x2 = parseInt(a[2], 10) / xscale,
-          y2 = parseInt(a[3], 10) / yscale;
+      var x1 = a[0] / xscale,
+          y1 = a[1] / yscale,
+          x2 = a[2] / xscale,
+          y2 = a[3] / yscale;
 
       if (animating) {
         return;
@@ -1350,8 +1353,8 @@
           pcent = 0,
           velocity = options.swingSpeed;
 
-      x = animat[0];
-      y = animat[1];
+      x1 = animat[0];
+      y1 = animat[1];
       x2 = animat[2];
       y2 = animat[3];
 
@@ -1365,10 +1368,10 @@
         return function () {
           pcent += (100 - pcent) / velocity;
 
-          animat[0] = x + ((pcent / 100) * ix1);
-          animat[1] = y + ((pcent / 100) * iy1);
-          animat[2] = x2 + ((pcent / 100) * ix2);
-          animat[3] = y2 + ((pcent / 100) * iy2);
+          animat[0] = Math.round(x1 + ((pcent / 100) * ix1));
+          animat[1] = Math.round(y1 + ((pcent / 100) * iy1));
+          animat[2] = Math.round(x2 + ((pcent / 100) * ix2));
+          animat[3] = Math.round(y2 + ((pcent / 100) * iy2));
 
           if (pcent >= 99.8) {
             pcent = 100;
@@ -1378,6 +1381,7 @@
             queueAnimator();
           } else {
             Selection.done();
+            Selection.animMode(false);
             if (typeof(callback) === 'function') {
               callback.call(api);
             }
@@ -1389,7 +1393,7 @@
     //}}}
     function setSelect(rect) //{{{
     {
-      setSelectRaw([parseInt(rect[0], 10) / xscale, parseInt(rect[1], 10) / yscale, parseInt(rect[2], 10) / xscale, parseInt(rect[3], 10) / yscale]);
+      setSelectRaw([rect[0] / xscale, rect[1] / yscale, rect[2] / xscale, rect[3] / yscale]);
       options.onSelect.call(api, unscale(Coords.getFixed()));
       Selection.enableHandles();
     }
@@ -1579,6 +1583,10 @@
       },
       getScaleFactor: function () {
         return [xscale, yscale];
+      },
+      getOptions: function() {
+        // careful: internal values are returned
+        return options;
       },
 
       ui: {
